@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Test",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JAWA33/JulienArmand_P7_back_10112021.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JAWA33/JulienArmand_P7_back_10112021/issues"
+  },
+  "homepage": "https://github.com/JAWA33/JulienArmand_P7_back_10112021#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "http": "0.0.1-security"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

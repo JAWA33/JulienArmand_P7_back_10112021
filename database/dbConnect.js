@@ -1,19 +1,13 @@
-import mysql from "mysql";
+const mysql = require("mysql");
+const dotenv = require("dotenv");
+
+dotenv.config({ path: "./.env" });
 
 const dbConnect = mysql.createConnection({
-  host: "localhost",
-  user: "administrateur",
-  password: "Admin_groupcom_33",
-  database: "groupcom",
+  host: process.env.GC_ADMIN_HOST,
+  user: process.env.GC_ADMIN_USER,
+  password: process.env.GC_ADMIN_PASS,
+  database: process.env.GC_ADMIN_DB,
 });
 
-// dbConnect.connect((err) => {
-//   if (err) {
-//     console.log("Erreur de connexion");
-//     throw err;
-//   } else {
-//     console.log("Mysql : Groupcom is connected");
-//   }
-// });
-
-export default dbConnect;
+module.exports = dbConnect;

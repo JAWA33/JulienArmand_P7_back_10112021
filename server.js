@@ -1,7 +1,7 @@
 //* Lancement du serveur sur http localhost 5000 ou autre disponible :
 
-import http from "http";
-import app from "../backend/app.js";
+const http = require("http");
+const app = require("../backend/app.js");
 
 const normalizePort = (val) => {
   const port = parseInt(val, 10);

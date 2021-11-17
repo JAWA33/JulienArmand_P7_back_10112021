@@ -11,10 +11,14 @@ const oneUser =
 
 const checkUser = "SELECT id_user FROM gc_users WHERE id_user=?";
 
+const updateUser =
+  "UPDATE gc_users SET user_firstname =? ,user_lastname =? ,user_phone =? ,user_age =?, user_bio =? ,user_skill =?,user_hobbie =?, user_url_image =?,user_id_job= ? WHERE id_user=?";
+
 module.exports = {
   signup: signup,
   login: login,
   allUser: allUser,
   oneUser: oneUser,
   checkUser: checkUser,
+  updateUser: updateUser,
 };

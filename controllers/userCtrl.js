@@ -195,4 +195,53 @@ exports.getOneUser = (req, res) => {
   });
 };
 
-//* ######### USER UPDATE : Update one User Data by his ID ###########
+//* ######### USER UPDATE : Update one User Data by his ID (put) ###########
+
+exports.updateUser = (req, res) => {
+  console.log("La regex est passée");
+  //   if (
+  //     req.params.id &&
+  //     req.body.firstname &&
+  //     req.body.idJob &&
+  //     req.body.userImage &&
+  //     regEx.validName(req.body.firstname) &&
+  //     regEx.validNumeric(req.body.idJob) &&
+  //     regEx.validName(req.body.lastname) &&
+  //     regEx.validText(req.body.bio) &&
+  //     regEx.validText(req.body.skill) &&
+  //     regEx.validText(req.body.hobbie) &&
+  //   ) {
+  //     const idUser = req.params.id;
+  //     const firstname = req.body.firstname; // not Null
+  //     const lastname = req.body.lastname;
+  //     const phone = req.body.phone;
+  //     const age = req.body.age;
+  //     const bio = req.body.bio;
+  //     const skill = req.body.skill;
+  //     const hobbie = req.body.hobbie;
+  //     const userImage = req.body.userImage;
+  //     const idJob = req.body.idJob; //not Null
+  //   } else if (!req.params.id) {
+  //     res.clearCookie("jwt");
+  //     res
+  //       .statut(400)
+  //       .json({
+  //         message:
+  //           "Un problème est survenu, merci de vous reconnecter. Vous serez redirigé vers la page d'acceuil dans 5 secondes",
+  //       });
+  //   }
+  //   dbConnect.query(
+  //     sqlReq.updateUser,
+  //     [
+  //       [firstname, lastname, phone, age, bio, skill, hobbie, userImage, idJob],
+  //       idUser,
+  //     ],
+  //     (err, result) => {
+  //       if (err) {
+  //         console.log("Erreur " + err);
+  //       } else {
+  //         res.status(201).json(result);
+  //       }
+  //     }
+  //   );
+};

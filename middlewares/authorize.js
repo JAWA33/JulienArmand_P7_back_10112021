@@ -2,6 +2,8 @@ const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const dbConnect = require("../database/dbConnect.js");
 
+const sqlReq = require("../utils/sqlRequest.js");
+
 dotenv.config({ path: "../.env" });
 
 const authorize = (req, res, next) => {
@@ -10,14 +12,13 @@ const authorize = (req, res, next) => {
       const { jwt: token } = req.cookies;
 
       const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
-      const { validUser: checkUser } = decodedToken;
-      const { statusUser: statusUser } = decodedToken;
-      console.log({ validUser: checkUser });
-      console.log({ statusUser: statusUser });
-      console.log({ jwt: token });
+      const { validUser: verifUser } = decodedToken;
+      //const { statusUser: statusUser } = decodedToken;
+      //console.log({ validUser: verifUser });
+      //console.log({ statusUser: statusUser });
+      //console.log({ jwt: token });
 
-      const sql_checkUser = "SELECT id_user FROM gc_users WHERE id_user=?";
-      dbConnect.query(sql_checkUser, checkUser, (err) => {
+      dbConnect.query(sqlReq.checkUser, verifUser, (err) => {
         if (err) {
           res.clearCookie("jwt");
           res.status(403).json({ message: "403: unauthorized request" });

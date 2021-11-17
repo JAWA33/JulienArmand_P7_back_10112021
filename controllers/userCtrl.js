@@ -2,25 +2,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const dbConnect = require("../database/dbConnect.js");
-const { get } = require("http");
+//const { get } = require("http");
+
+const regEx = require("../middlewares/regex.js");
+const sqlReq = require("../utils/sqlRequest.js");
 
 dotenv.config({ path: "../.env" });
 
-// exports.signup = (req, res) => {
-//   //! A REMPLACER juste pour Test :
-//   const name = req.body.name;
-//   const sql = "SELECT * FROM gc_users";
-
-//   dbConnect.query(sql, (err, result) => {
-//     if (err) {
-//       console.log("Erreur " + err);
-//     } else {
-//       res.status(201).json(result);
-//     }
-//   });
-// };
-
-//* ######### SIGNUP : Save A New User ###########
+//* ######### USER SIGNUP : Save A New User (post)###########
 /*
 request format : {
     "firstname" : "prenom",
@@ -38,14 +27,10 @@ exports.signup = (req, res) => {
       message: "Votre mot de passe ne correspond pas à votre confirmation",
     });
   } else {
-    // //! A exporter dans fichier js séparé
-    const sql_signup =
-      "INSERT INTO gc_users (user_firstname, user_email, user_password, user_id_job) VALUES (?,?,?,?)";
-
     if (
-      validEmail(req.body.email) &&
-      validPassword(req.body.password) &&
-      validName(req.body.firstname)
+      regEx.validEmail(req.body.email) &&
+      regEx.validPassword(req.body.password) &&
+      regEx.validName(req.body.firstname)
     ) {
       bcrypt
         .hash(req.body.password, 10)
@@ -56,7 +41,7 @@ exports.signup = (req, res) => {
           const jobID = req.body.id_job;
 
           dbConnect.query(
-            sql_signup,
+            sqlReq.signup,
             [firstname, email, password, jobID],
             (err) => {
               if (err) {
@@ -76,17 +61,17 @@ exports.signup = (req, res) => {
           );
         })
         .catch((err) => res.status(500).json({ err }));
-    } else if (!validEmail(req.body.email)) {
+    } else if (!regEx.validEmail(req.body.email)) {
       return res.status(400).json({
         message:
           "E-mail non valide : doit contenir une adresse de type : #prenom#@groupomania.xx(x) ",
       });
-    } else if (!validPassword(req.body.password)) {
+    } else if (!regEx.validPassword(req.body.password)) {
       return res.status(400).json({
         message:
           "Votre mot de passe doit contenir au minimum : un nombre, une lettre minuscule, une lettre majuscule et avoir entre 6 et 16 caractères",
       });
-    } else if (!validName(req.body.firstname)) {
+    } else if (!regEx.validName(req.body.firstname)) {
       return res.status(400).json({
         message:
           "Votre prénom doit contenir au minimum 3 caractères, et être constitué de lettres, majuscules et/ou minuscules. Pour les noms composés vous pouvez utiliser un -",
@@ -95,7 +80,7 @@ exports.signup = (req, res) => {
   }
 };
 
-//* ######### LOGIN : Connect Registred User ###########
+//* ######### USER LOGIN : Connect Registred User (post) ###########
 /*
 request format : {
     "email":"mail@groupomania.com",
@@ -104,18 +89,15 @@ request format : {
 */
 
 exports.login = (req, res) => {
-  // //! A exporter dans fichier js séparé
-  const sql_login = "SELECT * FROM gc_users WHERE user_email =?";
-
   if (
     req.body.email &&
     req.body.password &&
-    validEmail(req.body.email) &&
-    validPassword(req.body.password)
+    regEx.validEmail(req.body.email) &&
+    regEx.validPassword(req.body.password)
   ) {
     const email = req.body.email;
 
-    dbConnect.query(sql_login, email, (err, result) => {
+    dbConnect.query(sqlReq.login, email, (err, result) => {
       if (!result[0]) {
         console.log("Pas de compte trouvé" + err);
         res.status(400).json({
@@ -160,7 +142,10 @@ exports.login = (req, res) => {
         });
       }
     });
-  } else if (!validPassword(req.body.password) || !validEmail(req.body.email)) {
+  } else if (
+    !regEx.validPassword(req.body.password) ||
+    !regEx.validEmail(req.body.email)
+  ) {
     return res.status(400).json({
       message: "Erreur de saisie: Vérifier votre email et votre mot de passe",
     });
@@ -174,74 +159,40 @@ exports.login = (req, res) => {
     });
   }
 };
-//   UserModel.findOne({ email: req.body.email })
-//     .then((user) => {
-//       console.log(user);
-//       if (!user) {
-//         return res.status(401).json({ error: "Utilisateur non trouvé !" });
-//       }
-//       bcrypt
-//         .compare(req.body.password, user.password)
-//         .then((valid) => {
-//           if (!valid) {
-//             return res.status(401).json({ error: "Mot de passe incorrect !" });
-//           }
-//           res.status(200).json({
-//             userId: user._id,
-//             token: jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET, {
-//               expiresIn: "24h",
-//             }),
-//           });
-//         })
-//         .catch((error) => res.status(500).json({ error }));
-//     })
-//     .catch((error) => res.status(400).json({ error }));
 
-// //! A exporter dans fichier js séparé :
+//* ######### USER LOGOUT : Disconnect User (delete)###########
 
-//* REGEX : validation des données de la requête ----------------------------------
-
-//* Test Email :*****************/
-function validEmail(checkMail) {
-  //! REGEX : uniquement les membres de groupomania
-  let regexEmail = new RegExp(
-    "^[A-Za-z--]+@groupomania+[.]{1}[a-z]{2,3}$",
-    "g"
-  );
-  let testEmail = regexEmail.test(checkMail);
-
-  if (testEmail) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-//* Test Password:*****************/
-const validPassword = (checkPass) => {
-  let regexPass = new RegExp(
-    "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=.-_*])([a-zA-Z0-9@#$%^&+=*.-_]){6,16}$",
-    "g"
-  );
-  let testPass = regexPass.test(checkPass);
-
-  if (testPass) {
-    return true;
-  } else {
-    return false;
+exports.logout = (req, res) => {
+  if (req.cookies.jwt) {
+    res.clearCookie("jwt");
+    res.status(200).json({ message: "Vous êtes déconnecté" });
   }
 };
 
-//* Test Name:*****************/
-const validName = (checkName) => {
-  let regexName = new RegExp("^[A-Za-z--]{3,}$", "g");
-  let testName = regexName.test(checkName);
+//* ######### USER GET ALL : Selected all User Data (get)###########
 
-  if (testName) {
-    return true;
-  } else {
-    return false;
-  }
+exports.getAllUser = (res) => {
+  dbConnect.query(sqlReq.allUser, (err, result) => {
+    if (err) {
+      console.log("Erreur " + err);
+    } else {
+      res.status(201).json(result);
+    }
+  });
 };
 
-//! Fin REGEX : validation des données de la requête----------------------------------
+//* ######### USER GET ONE : Selected one User Data by his ID (get)###########
+
+exports.getOneUser = (req, res) => {
+  const idUser = req.params.id;
+
+  dbConnect.query(sqlReq.oneUser, idUser, (err, result) => {
+    if (err) {
+      console.log("Erreur " + err);
+    } else {
+      res.status(201).json(result);
+    }
+  });
+};
+
+//* ######### USER UPDATE : Update one User Data by his ID ###########

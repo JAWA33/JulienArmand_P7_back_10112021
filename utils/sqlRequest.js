@@ -1,3 +1,4 @@
+//! ################# Requête pour user : #######################
 const signup =
   "INSERT INTO gc_users (user_firstname, user_email, user_password, user_id_job,user_url_image) VALUES (?,?,?,?,?)";
 
@@ -19,6 +20,18 @@ const updateUser =
 
 const deleteUser = "DELETE FROM gc_users WHERE id_user = ?";
 
+//! ################# Requête pour post : ########################
+
+const allPosts = "SELECT * FROM gc_posts";
+
+const createPost =
+  "INSERT INTO gc_posts (post_text, post_url_image, post_id_user) VALUES (?,?,?)";
+
+const updatePost =
+  "UPDATE gc_posts SET post_text =? ,post_url_image =? WHERE id_user=? AND id_post=?";
+
+const deletePost = "DELETE FROM gc_users WHERE id_post=?";
+
 module.exports = {
   signup: signup,
   login: login,
@@ -28,4 +41,8 @@ module.exports = {
   updateUser: updateUser,
   updateLastConnect: updateLastConnect,
   deleteUser: deleteUser,
+  allPosts: allPosts,
+  createPost: createPost,
+  updatePost: updatePost,
+  deletePost: deletePost,
 };

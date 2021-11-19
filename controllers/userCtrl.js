@@ -2,16 +2,15 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const dbConnect = require("../database/dbConnect.js");
-//const { get } = require("http");
+const { get } = require("http");
+const fs = require("fs");
 
-const regEx = require("../middlewares/regex.js");
 const sqlReq = require("../utils/sqlRequest.js");
 
 dotenv.config({ path: "../.env" });
 
-//* ######### USER SIGNUP : Save A New User (post)###########
-/*
-request format : {
+//* C : ######### USER SIGNUP : Save A New User (post)###########
+/* request format : {
     "firstname" : "prenom",
     "email":"mail@groupomania.com",
     "password":"EEss_pass_33",
@@ -28,9 +27,10 @@ exports.signup = (req, res) => {
     });
   } else {
     if (
-      regEx.validEmail(req.body.email) &&
-      regEx.validPassword(req.body.password) &&
-      regEx.validName(req.body.firstname)
+      req.body.email &&
+      req.body.password &&
+      req.body.firstname &&
+      req.body.id_job
     ) {
       bcrypt
         .hash(req.body.password, 10)
@@ -39,13 +39,16 @@ exports.signup = (req, res) => {
           const firstname = req.body.firstname;
           const email = req.body.email;
           const jobID = req.body.id_job;
+          const url_image = `${req.protocol}://${req.get(
+            "host"
+          )}/images/profils/Default_profil.jpg`;
 
           dbConnect.query(
             sqlReq.signup,
-            [firstname, email, password, jobID],
+            [firstname, email, password, jobID, url_image],
             (err) => {
               if (err) {
-                console.log("Email déjà enregistré" + err);
+                console.log("Erreur dans les données" + err);
                 res.status(400).json({
                   message:
                     "Utilisateur déjà enregistré : Merci de saisir un autre e-mail ou de vous connecter avec votre mot de passe depuis la page d'accueil",
@@ -61,40 +64,24 @@ exports.signup = (req, res) => {
           );
         })
         .catch((err) => res.status(500).json({ err }));
-    } else if (!regEx.validEmail(req.body.email)) {
+    } else if (!req.body.email || !req.body.password || !req.body.firstname) {
       return res.status(400).json({
         message:
-          "E-mail non valide : doit contenir une adresse de type : #prenom#@groupomania.xx(x) ",
-      });
-    } else if (!regEx.validPassword(req.body.password)) {
-      return res.status(400).json({
-        message:
-          "Votre mot de passe doit contenir au minimum : un nombre, une lettre minuscule, une lettre majuscule et avoir entre 6 et 16 caractères",
-      });
-    } else if (!regEx.validName(req.body.firstname)) {
-      return res.status(400).json({
-        message:
-          "Votre prénom doit contenir au minimum 3 caractères, et être constitué de lettres, majuscules et/ou minuscules. Pour les noms composés vous pouvez utiliser un -",
+          "Erreur dans la transmission des données : Vérifier la requête",
       });
     }
   }
 };
 
-//* ######### USER LOGIN : Connect Registred User (post) ###########
-/*
-request format : {
+//* R : ######### USER LOGIN : Connect Registred User (post) ###########
+/* request format : {
     "email":"mail@groupomania.com",
     "password":"EEss_pass_33",
 })
 */
 
 exports.login = (req, res) => {
-  if (
-    req.body.email &&
-    req.body.password &&
-    regEx.validEmail(req.body.email) &&
-    regEx.validPassword(req.body.password)
-  ) {
+  if (req.body.email && req.body.password) {
     const email = req.body.email;
 
     dbConnect.query(sqlReq.login, email, (err, result) => {
@@ -113,41 +100,52 @@ exports.login = (req, res) => {
                 message:
                   "Pas de compatibilité entre votre email et votre mot de passe : Merci de les vérifier",
               });
-            } else {
+            } else if (result[1]) {
+              console.log("Doublon dans les emails");
+              res.status(500).json({
+                message:
+                  "Impossibilité d'accès à votre compte : Merci de prévenir l'administrateur du site",
+              });
+            } else if (valid) {
               console.log("Compte trouvé");
 
-              delete result[0].user_password; //Ne pas envoyer le mot de passe au frontend
-              result[0].user_lastconnect = Date.now(); //enregistre le timestamp de la connexion
-
+              //création du cookie :
               const token = jwt.sign(
                 {
                   validUser: result[0].id_user,
                   statusUser: result[0].user_status,
+                  id_user: result[0].id_user,
                 },
                 process.env.GC_TOKEN_SECRET,
                 {
                   expiresIn: "24h",
                 }
               );
+              // Envoi du token dans un cookie
+              res.cookie("jwt", token);
+              console.log("Token envoyé");
 
-              res.cookie("jwt", token); //! Envoi du token dans un cookie
-              res.status(200).json(result[0]);
+              // Modification timestamp de dernière connexion
+              dbConnect.query(
+                sqlReq.updateLastConnect,
+                result[0].id_user,
+                (err) => {
+                  if (err) {
+                    console.log(err);
+                    res.status(500).json({
+                      message: "Echec enregistrement de la nouvelle connexion",
+                    });
+                  } else {
+                    console.log("Nouvelle connexion enregistrée");
+                    delete result[0].user_password; //Ne pas envoyer le mot de passe au frontend
+                    //result[0].user_lastconnect = Date.now();
+                    res.status(200).json(result[0]);
+                  }
+                }
+              );
             }
           });
-      } else if (result[1]) {
-        console.log("Doublon dans les emails");
-        res.status(500).json({
-          message:
-            "Impossibilité d'accès à votre compte : Merci de prévenir l'administrateur du site",
-        });
       }
-    });
-  } else if (
-    !regEx.validPassword(req.body.password) ||
-    !regEx.validEmail(req.body.email)
-  ) {
-    return res.status(400).json({
-      message: "Erreur de saisie: Vérifier votre email et votre mot de passe",
     });
   } else if (!req.body.email) {
     return res.status(400).json({
@@ -160,18 +158,19 @@ exports.login = (req, res) => {
   }
 };
 
-//* ######### USER LOGOUT : Disconnect User (delete)###########
+//* D : ######### USER LOGOUT : Disconnect User (delete)###########
 
 exports.logout = (req, res) => {
   if (req.cookies.jwt) {
     res.clearCookie("jwt");
+    console.log("Vous êtes déconnecté");
     res.status(200).json({ message: "Vous êtes déconnecté" });
   }
 };
 
-//* ######### USER GET ALL : Selected all User Data (get)###########
+//* R : ######### USER GET ALL : Selected all User Data (get)###########
 
-exports.getAllUser = (res) => {
+exports.getAllUser = (req, res) => {
   dbConnect.query(sqlReq.allUser, (err, result) => {
     if (err) {
       console.log("Erreur " + err);
@@ -181,7 +180,7 @@ exports.getAllUser = (res) => {
   });
 };
 
-//* ######### USER GET ONE : Selected one User Data by his ID (get)###########
+//* R : ######### USER GET ONE : Selected one User Data by his ID (get)###########
 
 exports.getOneUser = (req, res) => {
   const idUser = req.params.id;
@@ -195,53 +194,114 @@ exports.getOneUser = (req, res) => {
   });
 };
 
-//* ######### USER UPDATE : Update one User Data by his ID (put) ###########
+//* U : ######### USER UPDATE : Update one User Data by his ID (put) ###########
+
+/* request format: {
+  "lastname":"nom",
+  "firstname":"prénom",
+  "phone":"0X.XX.XX.XX.XX",
+  "age" :"timestamp",
+  "bio" : "Ce que vous devez savoir sur moi",
+  "skill" : "Mes compétences",
+  "hobbie" : "Mes hobbies",
+  "id_job" : "nbre"
+
+  + "url_image" : file to download
+}
+*/
 
 exports.updateUser = (req, res) => {
-  console.log("La regex est passée");
-  //   if (
-  //     req.params.id &&
-  //     req.body.firstname &&
-  //     req.body.idJob &&
-  //     req.body.userImage &&
-  //     regEx.validName(req.body.firstname) &&
-  //     regEx.validNumeric(req.body.idJob) &&
-  //     regEx.validName(req.body.lastname) &&
-  //     regEx.validText(req.body.bio) &&
-  //     regEx.validText(req.body.skill) &&
-  //     regEx.validText(req.body.hobbie) &&
-  //   ) {
-  //     const idUser = req.params.id;
-  //     const firstname = req.body.firstname; // not Null
-  //     const lastname = req.body.lastname;
-  //     const phone = req.body.phone;
-  //     const age = req.body.age;
-  //     const bio = req.body.bio;
-  //     const skill = req.body.skill;
-  //     const hobbie = req.body.hobbie;
-  //     const userImage = req.body.userImage;
-  //     const idJob = req.body.idJob; //not Null
-  //   } else if (!req.params.id) {
-  //     res.clearCookie("jwt");
-  //     res
-  //       .statut(400)
-  //       .json({
-  //         message:
-  //           "Un problème est survenu, merci de vous reconnecter. Vous serez redirigé vers la page d'acceuil dans 5 secondes",
-  //       });
-  //   }
-  //   dbConnect.query(
-  //     sqlReq.updateUser,
-  //     [
-  //       [firstname, lastname, phone, age, bio, skill, hobbie, userImage, idJob],
-  //       idUser,
-  //     ],
-  //     (err, result) => {
-  //       if (err) {
-  //         console.log("Erreur " + err);
-  //       } else {
-  //         res.status(201).json(result);
-  //       }
-  //     }
-  //   );
+  if (req.cookies.jwt) {
+    const { jwt: token } = req.cookies;
+    const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
+    const { id_user: id_user } = decodedToken;
+
+    // console.log(id_user);
+    // console.log(req.body.firstname);
+    // console.log(req.body.lastname);
+
+    if (id_user == req.params.id && req.body.firstname && req.body.id_job) {
+      const lastname = req.body.lastname;
+      const firstname = req.body.firstname; // not Null
+      const phone = req.body.phone;
+      const age = req.body.age;
+      const bio = req.body.bio;
+      const skill = req.body.skill;
+      const hobbie = req.body.hobbie;
+      const id_job = req.body.id_job; //not Null
+
+      const url_image = req.file
+        ? `${req.protocol}://${req.get("host")}/images/profils/${
+            req.file.filename
+          }`
+        : req.body.url_image;
+
+      //! A vérifier + Ajouter suppresion de l'ancienne image de profil !!!!!!!!!!!!!!
+
+      dbConnect.query(
+        sqlReq.updateUser,
+        [
+          firstname,
+          lastname,
+          phone,
+          age,
+          bio,
+          skill,
+          hobbie,
+          url_image,
+          id_job,
+          id_user,
+        ],
+        (err, result) => {
+          if (err) {
+            console.log("Erreur " + err);
+          } else {
+            res.status(201).json(result);
+          }
+        }
+      );
+    } else if (!req.body.firstname || !req.body.id_job) {
+      res.status(400).json({
+        message:
+          "Vous devez au minimum remplir un prénom et votre poste pour mettre à jour votre profil",
+      });
+    } else if (id_user !== req.params.id) {
+      res.clearCookie("jwt");
+      res.status(400).json({
+        message:
+          "Un problème est survenu, merci de vous reconnecter. Vous serez redirigé vers la page d'acceuil dans 5 secondes",
+      });
+    }
+  }
+};
+
+//* D : ######### USER DELETE : Delete one User Data by his ID (delete) ###########
+
+exports.deleteUser = (req, res) => {
+  if (req.cookies.jwt) {
+    const { jwt: token } = req.cookies;
+    const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
+    const { id_user: id_user } = decodedToken;
+
+    if (id_user != req.params.id) {
+      res.clearCookie("jwt");
+      res.status(400).json({
+        message:
+          "Un problème est survenu, merci de vous reconnecter. Vous serez redirigé vers la page d'acceuil dans 5 secondes",
+      });
+    } else if (id_user == req.params.id) {
+      dbConnect.query(sqlReq.deleteUser, id_user, (err) => {
+        if (err) {
+          res.status(500).json({
+            message:
+              "Suppression impossible : Contacter l'administrateur du site",
+          });
+        } else {
+          res.clearCookie("jwt");
+          console.log("Suppression du compte effectué");
+          res.status(200).json({ message: "Votre compte a été supprimé" });
+        }
+      });
+    }
+  }
 };

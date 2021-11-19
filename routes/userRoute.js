@@ -1,24 +1,21 @@
 const express = require("express");
 const authorize = require("../middlewares/authorize.js");
+const regExpValidator = require("../middlewares/regExpValidator.js");
 
 const userCtrl = require("../controllers/userCtrl.js");
-const regExpValidator = require("../middlewares/regExpValidator.js");
 
 const router = express.Router();
 
 //! ROUTE A MODIFIER : Ajout de authorize et multer
-router.post("/signup", userCtrl.signup);
-router.post("/login", userCtrl.login);
+router.post("/signup", regExpValidator, userCtrl.signup);
+router.post("/login", regExpValidator, userCtrl.login);
 
-router.get("/all", userCtrl.getAllUser);
-router.get("/:id", userCtrl.getOneUser);
+router.get("/all", authorize, userCtrl.getAllUser);
+router.get("/:id", authorize, userCtrl.getOneUser);
 
-router.delete("/logout", userCtrl.logout);
+router.delete("/logout", authorize, userCtrl.logout);
 
-router.put("/update/:id", userCtrl.updateUser);
-
-//! TEST REGEX :
-router.post("/test", regExpValidator, userCtrl.updateUser);
-//! TEST REGEX :
+router.put("/update/:id", authorize, regExpValidator, userCtrl.updateUser);
+router.delete("/delete/:id", authorize, userCtrl.deleteUser);
 
 module.exports = router;

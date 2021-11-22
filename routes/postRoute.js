@@ -8,10 +8,10 @@ const router = express.Router();
 
 //! ROUTE A MODIFIER
 
-router.post("/create", postCtrl.createPost); //C
-router.get("/all", postCtrl.getAllPosts); //R
-router.put("/update/:idpost", postCtrl.updatePost); //U
-router.delete("/delete/:idpost", postCtrl.deletePost); //D
+router.post("/create", authorize, regExpValidator, postCtrl.createPost); //C
+router.get("/all", authorize, postCtrl.getAllPosts); //R
+router.put("/update/:idpost", authorize, regExpValidator, postCtrl.updatePost); //U
+router.delete("/delete/:idpost", authorize, postCtrl.deletePost); //D
 
 router.post("/like/:idpost", postCtrl.like); //C (l'user like un post)
 router.get("/like/user/:idpost", postCtrl.userLike); //R ???? (voir si l'user a liké)

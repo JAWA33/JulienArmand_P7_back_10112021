@@ -28,9 +28,9 @@ const createPost =
   "INSERT INTO gc_posts (post_text, post_url_image, post_id_user) VALUES (?,?,?)";
 
 const updatePost =
-  "UPDATE gc_posts SET post_text =? ,post_url_image =? WHERE id_user=? AND id_post=?";
+  "UPDATE gc_posts SET post_text =? ,post_url_image =? WHERE post_id_user=? AND id_post=?";
 
-const deletePost = "DELETE FROM gc_users WHERE id_post=?";
+const deletePost = "DELETE FROM gc_posts WHERE post_id_user=? AND id_post=?";
 
 module.exports = {
   signup: signup,

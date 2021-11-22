@@ -65,12 +65,76 @@ exports.createPost = (req, res) => {
 //* U : ######### POST UPDATE : Update one post (get)###########
 /* request format : {
     "post_text":"Je raconte ma vie",
+    Si elle existe déjà : "url_image" :"Mon url existante",
 })
 */
 
-exports.updatePost = (req, res) => {};
+exports.updatePost = (req, res) => {
+  if (req.cookies.jwt && req.body.post_text && req.params.idpost) {
+    const { jwt: token } = req.cookies;
+    const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
+    const { id_user: id_user } = decodedToken;
+    const post_text = req.body.post_text;
+    const id_post = req.params.idpost;
+    let url_image;
+    if (req.body.url_image) {
+      url_image = req.body.url_image;
+    } else {
+      url_image = req.file
+        ? `${req.protocol}://${req.get("host")}/images/posts/${
+            req.file.filename
+          }`
+        : null;
+    }
 
-exports.deletePost = (req, res) => {};
+    dbConnect.query(
+      sqlReq.updatePost,
+      [post_text, url_image, id_user, id_post],
+      (err) => {
+        if (err) {
+          console.log("Erreur dans les données" + err);
+          res.status(500).json({
+            message: "Erreur de la mise à jour : Merci de recommencer",
+          });
+        } else {
+          console.log("Post mis à jour");
+          res.status(201).json({
+            message: "Votre post a été mis à jour",
+          });
+        }
+      }
+    );
+  } else if (!req.body.post_text) {
+    return res.status(400).json({
+      message: "Votre post ne peut être mis à jour sans texte associé",
+    });
+  }
+};
+
+//* D : ######### POST DELETE : Delete one post made by user (delete)###########
+//! A voir pour suppression des likes et comments en même temps ????
+exports.deletePost = (req, res) => {
+  if (req.cookies.jwt && req.params.idpost) {
+    const { jwt: token } = req.cookies;
+    const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
+    const { id_user: id_user } = decodedToken;
+    const id_post = req.params.idpost;
+
+    dbConnect.query(sqlReq.deletePost, [id_user, id_post], (err) => {
+      if (err) {
+        console.log("Erreur dans les données" + err);
+        res.status(500).json({
+          message: "Echec de la suppression : Merci de recommencer",
+        });
+      } else {
+        console.log("Post supprimé");
+        res.status(201).json({
+          message: "Votre post a été supprimé",
+        });
+      }
+    });
+  }
+};
 
 exports.like = (req, res) => {};
 

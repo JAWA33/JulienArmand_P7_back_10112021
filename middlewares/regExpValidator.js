@@ -40,32 +40,32 @@ const regExpValidator = (req, res, next) => {
     [
       "bio",
       "_paragraph",
-      "Votre texte comporte des éléments qui ne sont pas autorisés",
+      "Votre texte comporte moins de 3 caractères ou des caractères qui ne sont pas autorisés",
     ],
     [
       "skill",
       "_paragraph",
-      "Votre texte comporte des éléments qui ne sont pas autorisés",
+      "Votre texte comporte moins de 3 caractères ou des caractères qui ne sont pas autorisés",
     ],
     [
       "hobbie",
       "_paragraph",
-      "Votre texte comporte des éléments qui ne sont pas autorisés",
+      "Votre texte comporte moins de 3 caractères ou des caractères qui ne sont pas autorisés",
     ],
     [
       "post_text",
       "_paragraph",
-      "Votre texte comporte des éléments qui ne sont pas autorisés",
+      "Votre texte comporte moins de 3 caractères ou des caractères qui ne sont pas autorisés",
     ],
     [
       "comment_text",
       "_paragraph",
-      "Votre texte comporte des éléments qui ne sont pas autorisés",
+      "Votre texte comporte moins de 3 caractères ou des caractères qui ne sont pas autorisés",
     ],
     [
       "instantcom_message",
       "_paragraph",
-      "Votre texte comporte des éléments qui ne sont pas autorisés",
+      "Votre texte comporte moins de 3 caractères ou des caractères qui ne sont pas autorisés",
     ],
     [
       "phone",
@@ -121,7 +121,7 @@ const regExpValidator = (req, res, next) => {
 
   //? Regex de type paragraphe : ############################# //
   // Mini 3 caractères,autorise: lettres, chiffres et certains caractères spéciaux, exclusion : / et ' et _
-  regex_paragraph = new RegExp("^[A-Za-z0-9-@#$%^€,;!? )(&+=.-:]{3,}$");
+  regex_paragraph = new RegExp("^[A-Za-zéè0-9-@#$%^€,;!?' )(&+=.-:]{3,}$");
 
   //? Regex de type téléphone (France) : ############################# //
   // Format : 0X.XX.XX.XX.XX ou OXXXXXXXXX :

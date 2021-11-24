@@ -33,8 +33,10 @@ app.use(express.json());
 
 //* Gestion de la route d'enregistrement des images : MULTER
 //! à vérifier ------- ////
-app.use("images/profils", express.static(path.join(__dirname, "images")));
-app.use("images/posts", express.static(path.join(__dirname, "images")));
+app.use("images", express.static(path.join(__dirname, "profils")));
+app.use("images", express.static(path.join(__dirname, "posts")));
+// app.use("images/profils", express.static(path.join(__dirname, "images")));
+// app.use("images/posts", express.static(path.join(__dirname, "images")));
 
 //* Routes principales de l'api :
 

@@ -112,7 +112,6 @@ exports.login = (req, res) => {
               //création du cookie :
               const token = jwt.sign(
                 {
-                  validUser: result[0].id_user,
                   statusUser: result[0].user_status,
                   id_user: result[0].id_user,
                 },

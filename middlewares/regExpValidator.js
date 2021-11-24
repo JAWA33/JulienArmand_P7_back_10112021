@@ -117,7 +117,7 @@ const regExpValidator = (req, res, next) => {
   regex_name = new RegExp("^[A-Za-z-]{3,}$");
 
   //? Regex de type numérique : uniquement des nombres positifs ############################# //
-  regex_id = new RegExp("^[0-9]{1,}$", "g");
+  regex_id = new RegExp("^[0-9]{1,}$");
 
   //? Regex de type paragraphe : ############################# //
   // Mini 3 caractères,autorise: lettres, chiffres et certains caractères spéciaux, exclusion : / et ' et _

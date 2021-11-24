@@ -25,6 +25,6 @@ const storage = multer.diskStorage({
   },
 });
 
-const multerConfig = multer({ storage }).single("image");
+const multerConfig = multer({ storage }).single("images");
 
 module.exports = multerConfig;

@@ -22,7 +22,40 @@ const deleteUser = "DELETE FROM gc_users WHERE id_user = ?";
 
 //! ################# Requête pour post : ########################
 
-const allPosts = "SELECT * FROM gc_posts";
+const allPosts = `SELECT id_post, post_create, post_text,post_url_image, post_id_user, 
+user_firstname, user_lastname, user_url_image, user_id_job,
+job_name, job_id_service, 
+service_name,
+(SELECT COUNT(like_id_post) FROM gc_likes WHERE like_id_post = id_post) AS nbr_likes,
+(SELECT COUNT(comment_id_post) FROM gc_comments WHERE comment_id_post = id_post) AS nbr_comments,
+(SELECT IF(COUNT(like_id_post)=0,"no","yes") FROM gc_likes WHERE like_id_user=? AND like_id_post=id_post) AS i_like_post,
+(SELECT IF(COUNT(comment_id_post)=0,"no","yes") FROM gc_comments WHERE comment_id_user=? AND comment_id_post=id_post) AS i_comment_post
+FROM gc_posts
+INNER JOIN gc_users ON id_user = post_id_user
+INNER JOIN gc_jobs ON id_job = user_id_job
+INNER JOIN gc_services ON id_service = job_id_service
+GROUP BY id_post
+ORDER BY post_create DESC`;
+
+const likeOrComment = `SELECT id_post,
+IF(COUNT(like_id_post)=0,"no","yes") AS i_like_post,
+IF(COUNT(comment_id_post)=0,"no","yes") AS i_comment_post
+FROM gc_posts
+LEFT JOIN gc_likes ON like_id_user=? AND like_id_post=id_post
+LEFT JOIN gc_comments ON comment_id_user=? AND comment_id_post=id_post
+GROUP BY id_post`;
+
+/*LEFT JOIN gc_likes ON like_id_post = id_post
+LEFT JOIN gc_comments ON comment_id_post = id_post
+COUNT(id_comment) AS i_comment_post
+INNER JOIN gc_comments ON comment_id_user = ?
+*/
+//const countComments =
+//  "SELECT COUNT(*) AS nbr_comments FROM gc_comments WHERE comment_id_post=?";
+
+//! COUNT(?) AS i_like_user à modifier :COUNT(?) AS i_like_post,
+// Ajouter si l'utilisateur actuel à liker ou non ou plutot
+// si id_user(récupéré via cookie)) est comprise dans la colonne like_id_user pour chaque poste//
 
 const createPost =
   "INSERT INTO gc_posts (post_text, post_url_image, post_id_user) VALUES (?,?,?)";
@@ -32,6 +65,33 @@ const updatePost =
 
 const deletePost = "DELETE FROM gc_posts WHERE post_id_user=? AND id_post=?";
 
+//! ################# Requête pour like : ########################
+
+const like = "INSERT INTO gc_likes (like_id_post, like_id_user) VALUES (?,?)";
+
+const dislike = "DELETE FROM gc_likes WHERE like_id_post=? AND like_id_user=?";
+
+//const userLike = "SELECT * FROM gc_likes WHERE like_id_user=?";
+
+//const countLikes =
+// "SELECT COUNT(*) AS nbr_likes FROM gc_likes WHERE like_id_post=?";
+
+//! ################# Requête pour commentaires : ########################
+//
+const comment =
+  "INSERT INTO gc_comments (comment_text,comment_id_post, comment_id_user) VALUES (?,?,?)";
+
+const getComments = "SELECT * FROM gc_comments WHERE comment_id_post=?";
+
+//const countComments =
+//  "SELECT COUNT(*) AS nbr_comments FROM gc_comments WHERE comment_id_post=?";
+
+const updateComment =
+  "UPDATE gc_comments SET comment_text =? WHERE comment_id_user=? AND id_comment=?";
+
+const deleteComment =
+  "DELETE FROM gc_comments WHERE comment_id_user=? AND id_comment=?";
+//
 module.exports = {
   signup: signup,
   login: login,
@@ -45,4 +105,14 @@ module.exports = {
   createPost: createPost,
   updatePost: updatePost,
   deletePost: deletePost,
+  like: like,
+  dislike: dislike,
+  //userLike: userLike,
+  //countLikes: countLikes,
+  comment: comment,
+  getComments: getComments,
+  updateComment: updateComment,
+  deleteComment: deleteComment,
+  //countComments: countComments,
+  likeOrComment: likeOrComment,
 };

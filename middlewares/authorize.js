@@ -12,13 +12,13 @@ const authorize = (req, res, next) => {
       const { jwt: token } = req.cookies;
 
       const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
-      const { validUser: verifUser } = decodedToken;
+      const { id_user: id_user } = decodedToken;
       //const { statusUser: statusUser } = decodedToken;
-      //console.log({ validUser: verifUser });
+      //console.log({ validUser: id_user });
       //console.log({ statusUser: statusUser });
       //console.log({ jwt: token });
 
-      dbConnect.query(sqlReq.checkUser, verifUser, (err) => {
+      dbConnect.query(sqlReq.checkUser, id_user, (err) => {
         if (err) {
           res.clearCookie("jwt");
           res.status(403).json({ message: "403: unauthorized request" });
@@ -27,7 +27,6 @@ const authorize = (req, res, next) => {
         }
       });
     } else {
-      res.clearCookie("jwt");
       res
         .status(403)
         .json({ message: "403: unauthorized access (Cookie not found)" });

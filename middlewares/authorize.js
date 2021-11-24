@@ -14,7 +14,6 @@ const authorize = (req, res, next) => {
       const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
       const { id_user: id_user } = decodedToken;
       //const { statusUser: statusUser } = decodedToken;
-      //console.log({ validUser: id_user });
       //console.log({ statusUser: statusUser });
       //console.log({ jwt: token });
 

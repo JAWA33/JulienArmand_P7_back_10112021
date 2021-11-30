@@ -1,3 +1,7 @@
+//? ################# Requête pous jobs : #######################
+
+const allJobs = "SELECT * FROM gc_jobs";
+
 //? ################# Requête pour user : #######################
 const signup =
   "INSERT INTO gc_users (user_firstname, user_email, user_password, user_id_job,user_url_image) VALUES (?,?,?,?,?)";
@@ -66,6 +70,7 @@ const deleteComment =
   "DELETE FROM gc_comments WHERE comment_id_user=? AND id_comment=?";
 //
 module.exports = {
+  allJobs: allJobs,
   signup: signup,
   login: login,
   allUser: allUser,

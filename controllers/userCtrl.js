@@ -19,10 +19,10 @@ dotenv.config({ path: "../.env" });
 })
 */
 
-exports.signup = (req, res) => {
+exports.signup = (req, res, next) => {
   // Vérification correspondance mot de passe et confirmation
   if (req.body.password !== req.body.controlPass) {
-    res.status(401).json({
+    res.status(201).json({
       message: "Votre mot de passe ne correspond pas à votre confirmation",
     });
   } else {
@@ -49,13 +49,13 @@ exports.signup = (req, res) => {
             (err) => {
               if (err) {
                 console.log("Erreur dans les données" + err);
-                res.status(400).json({
+                res.status(200).json({
                   message:
                     "Utilisateur déjà enregistré : Merci de saisir un autre e-mail ou de vous connecter avec votre mot de passe depuis la page d'accueil",
                 });
               } else {
                 console.log("Utilisateur enregistré");
-                res.status(201).json({
+                res.status(200).json({
                   message:
                     "Vous avez été enregistré : Merci de vous connecter avec votre mot de passe depuis la page d'accueil",
                 });
@@ -65,7 +65,7 @@ exports.signup = (req, res) => {
         })
         .catch((err) => res.status(500).json({ err }));
     } else if (!req.body.email || !req.body.password || !req.body.firstname) {
-      return res.status(400).json({
+      return res.status(200).json({
         message:
           "Erreur dans la transmission des données : Vérifier la requête",
       });
@@ -87,7 +87,7 @@ exports.login = (req, res) => {
     dbConnect.query(sqlReq.login, email, (err, result) => {
       if (!result[0]) {
         console.log("Pas de compte trouvé" + err);
-        res.status(400).json({
+        res.status(200).json({
           message: "Pas de compte trouvé : Vérifiez votre email",
         });
       } else if (result && !result[1]) {
@@ -96,13 +96,13 @@ exports.login = (req, res) => {
           .then((valid) => {
             if (!valid) {
               console.log("Erreur de mot de passe");
-              res.status(400).json({
+              res.status(200).json({
                 message:
                   "Pas de compatibilité entre votre email et votre mot de passe : Merci de les vérifier",
               });
             } else if (result[1]) {
               console.log("Doublon dans les emails");
-              res.status(500).json({
+              res.status(200).json({
                 message:
                   "Impossibilité d'accès à votre compte : Merci de prévenir l'administrateur du site",
               });
@@ -131,7 +131,7 @@ exports.login = (req, res) => {
                 (err) => {
                   if (err) {
                     console.log(err);
-                    res.status(500).json({
+                    res.status(200).json({
                       message: "Echec enregistrement de la nouvelle connexion",
                     });
                   } else {
@@ -147,11 +147,11 @@ exports.login = (req, res) => {
       }
     });
   } else if (!req.body.email) {
-    return res.status(400).json({
+    return res.status(200).json({
       message: "Merci de saisir un email pour accèder à votre compte",
     });
   } else if (!req.body.password) {
-    return res.status(400).json({
+    return res.status(200).json({
       message: "Merci de saisir un mot de passe pour accèder à votre compte",
     });
   }

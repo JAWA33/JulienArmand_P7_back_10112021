@@ -16,7 +16,7 @@ const regExpValidator = (req, res, next) => {
     [
       "email",
       "_email",
-      "E-mail non valide : doit contenir une adresse de type : #prenom#@groupomania.xx(x) ",
+      "Votre e-mail doit contenir une adresse de type : #prenom#@groupomania.xx(x) ",
     ],
     [
       "firstname",
@@ -166,7 +166,9 @@ const regExpValidator = (req, res, next) => {
   let errorComments = [];
   for (u = 0; u < allResults.length; u++) {
     if (allResults[u][1] === false) {
-      errorComments.push(allResults[u][2]);
+      errorComments.push(
+        allResults[u][0].split("_")[1] + " :: " + allResults[u][2]
+      );
     }
   }
 
@@ -176,7 +178,7 @@ const regExpValidator = (req, res, next) => {
   } else if (errorComments.length !== 0) {
     console.log("Vos données comportent des erreurs");
     res.status(400).json({
-      message: errorComments,
+      regexpError: errorComments,
     });
   }
 };

@@ -55,7 +55,7 @@ exports.signup = (req, res, next) => {
                 });
               } else {
                 console.log("Utilisateur enregistré");
-                res.status(200).json({
+                res.status(201).json({
                   message:
                     "Vous avez été enregistré : Merci de vous connecter avec votre mot de passe depuis la page d'accueil",
                 });

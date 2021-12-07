@@ -188,7 +188,9 @@ exports.getOneUser = (req, res) => {
     if (err) {
       console.log("Erreur " + err);
     } else {
-      res.status(201).json(result);
+      console.log("get_one_user :");
+      console.log(result);
+      res.status(200).json(result);
     }
   });
 };

@@ -44,11 +44,7 @@ exports.createPost = (req, res) => {
     dbConnect.query(
       sqlReq.createPost,
       [post_text, url_image, id_user],
-      (err) => {
-        console.log(post_text);
-        console.log(url_image);
-        console.log(id_user);
-
+      (err, result) => {
         if (err) {
           console.log("Erreur dans les données" + err);
           res.status(500).json({
@@ -58,7 +54,12 @@ exports.createPost = (req, res) => {
         } else {
           console.log("Post créé");
           res.status(201).json({
-            message: "Votre post a été créé",
+            data: {
+              post_text,
+              post_url_image: url_image,
+              //post_id_user: id_user,
+              id_post: result.insertId,
+            },
           });
         }
       }

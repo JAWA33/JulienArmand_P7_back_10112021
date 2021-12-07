@@ -12,7 +12,8 @@ router.post("/signup", regExp, userCtrl.signup);
 router.post("/login", regExp, userCtrl.login);
 
 router.get("/all", authorize, userCtrl.getAllUser);
-router.get("/:id", authorize, userCtrl.getOneUser);
+router.get("/:id", userCtrl.getOneUser); //démarrage de l'app
+router.get("/selectUser/:id", authorize, userCtrl.getOneUser);
 
 router.delete("/logout", authorize, userCtrl.logout);
 

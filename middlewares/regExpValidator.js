@@ -121,7 +121,7 @@ const regExpValidator = (req, res, next) => {
 
   //? Regex de type paragraphe : ############################# //
   // Mini 3 caractères,autorise: lettres, chiffres et certains caractères spéciaux, exclusion : / et ' et _
-  regex_paragraph = new RegExp("^[A-Za-zéè0-9-@#$%^€,;!?' )(&+=.-:]{3,}$");
+  regex_paragraph = new RegExp("^[A-Za-zéè0-9-@#$%^€,;!?' )(&+=.-:\n\t]{3,}$");
 
   //? Regex de type téléphone (France) : ############################# //
   // Format : 0X.XX.XX.XX.XX ou OXXXXXXXXX :

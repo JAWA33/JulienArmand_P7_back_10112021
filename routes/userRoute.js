@@ -1,7 +1,7 @@
 const express = require("express");
 const authorize = require("../middlewares/authorize.js");
 const regExp = require("../middlewares/regExpValidator.js");
-const multer = require("../middlewares/multerConfig.js");
+const multerToProfil = require("../middlewares/multerToProfil.js");
 
 const userCtrl = require("../controllers/userCtrl.js");
 
@@ -17,7 +17,13 @@ router.get("/selectUser/:id", authorize, userCtrl.getOneUser);
 
 router.delete("/logout", authorize, userCtrl.logout);
 
-router.put("/update/:id", authorize, regExp, multer, userCtrl.updateUser);
+router.put(
+  "/update/:id",
+  authorize,
+  regExp,
+  multerToProfil,
+  userCtrl.updateUser
+);
 router.delete("/delete/:id", authorize, userCtrl.deleteUser);
 //! A compléter avec suppression de l'image (multer)lors de delete user
 

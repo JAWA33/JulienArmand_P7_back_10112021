@@ -15,7 +15,7 @@ const allUser =
   "SELECT id_user, user_firstname,user_lastname,user_email,user_phone,user_age,user_bio,user_skill,user_hobbie, user_url_image,job_name,service_name,job_position FROM gc_users INNER JOIN gc_jobs ON user_id_job=id_job INNER JOIN gc_services ON job_id_service=id_service";
 
 const oneUser =
-  "SELECT id_user, user_firstname,user_lastname,user_email,user_phone,user_age,user_bio,user_skill,user_hobbie, user_url_image,job_name,service_name,job_position FROM gc_users INNER JOIN gc_jobs ON user_id_job=id_job INNER JOIN gc_services ON job_id_service=id_service WHERE id_user=?";
+  "SELECT id_user, user_firstname,user_lastname,user_email,user_phone,user_age,user_bio,user_skill,user_hobbie, user_url_image,user_status,job_name,service_name,job_position FROM gc_users INNER JOIN gc_jobs ON user_id_job=id_job INNER JOIN gc_services ON job_id_service=id_service WHERE id_user=?";
 
 const checkUser = "SELECT id_user FROM gc_users WHERE id_user=?";
 
@@ -26,7 +26,7 @@ const deleteUser = "DELETE FROM gc_users WHERE id_user = ?";
 
 //? ################# Requête pour post : ########################
 
-const allPosts = `SELECT id_post, post_create, post_text,post_url_image, post_id_user, 
+const allPosts = `SELECT id_post, post_create, post_text,post_url_image, post_id_user, post_video,
 user_firstname, user_lastname, user_url_image, user_id_job,
 job_name, job_id_service, 
 service_name,
@@ -42,7 +42,7 @@ GROUP BY id_post
 ORDER BY post_create DESC`;
 
 const createPost =
-  "INSERT INTO gc_posts (post_text, post_url_image, post_id_user) VALUES (?,?,?)";
+  "INSERT INTO gc_posts (post_text, post_url_image, post_id_user, post_video) VALUES (?,?,?,?)";
 
 const updatePost =
   "UPDATE gc_posts SET post_text =? ,post_url_image =? WHERE post_id_user=? AND id_post=?";

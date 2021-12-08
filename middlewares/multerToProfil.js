@@ -10,11 +10,10 @@ const MIME_TYPES = {
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, "images");
+    callback(null, "images/profils");
   },
   filename: (req, file, callback) => {
-    console.log("Voici la requete");
-    const newname = "testimage"; //!JSON.parse(req.body.sauce);  A remplacer par champ spécifique
+    const newname = file.originalname.split(".").join("_"); //!JSON.parse(req.body.sauce);  A remplacer par champ spécifique
     console.log(newname /*.name*/);
 
     const name = newname /*.name*/
@@ -25,6 +24,6 @@ const storage = multer.diskStorage({
   },
 });
 
-const multerConfig = multer({ storage }).single("images");
+const multerToProfil = multer({ storage }).single("file");
 
-module.exports = multerConfig;
+module.exports = multerToProfil;

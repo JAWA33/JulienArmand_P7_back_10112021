@@ -1,15 +1,21 @@
 const express = require("express");
 const authorize = require("../middlewares/authorize.js");
 const regExp = require("../middlewares/regExpValidator.js");
-const multer = require("../middlewares/multerConfig.js");
+const multerToPost = require("../middlewares/multerToPost.js");
 
 const postCtrl = require("../controllers/postCtrl.js");
 
 const router = express.Router();
 
-router.post("/create", authorize, regExp, multer, postCtrl.createPost); //C
+router.post("/create", authorize, regExp, multerToPost, postCtrl.createPost); //C
 router.get("/all", authorize, postCtrl.getAllPosts); //R
-router.put("/update/:idpost", authorize, regExp, multer, postCtrl.updatePost); //U
+router.put(
+  "/update/:idpost",
+  authorize,
+  regExp,
+  multerToPost,
+  postCtrl.updatePost
+); //U
 router.delete("/delete/:idpost", authorize, postCtrl.deletePost); //D
 //! A compléter avec suppression de l'image (multer)lors de delete post
 

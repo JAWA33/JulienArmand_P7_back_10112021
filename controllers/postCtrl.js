@@ -27,15 +27,23 @@ exports.getAllPosts = (req, res) => {
 //* C : ######### POST CREATE : Create a new post (get)###########
 /* request format : {
     "post_text":"Je raconte ma vie",
+    "post_video":"https://www.youtube.com etc ...",
 })
 */
 
 exports.createPost = (req, res) => {
-  if (req.cookies.jwt && req.body.post_text) {
+  if (
+    req.cookies.jwt &&
+    (req.body.post_text || req.body.post_video || req.file)
+  ) {
     const { jwt: token } = req.cookies;
     const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
     const { id_user: id_user } = decodedToken;
     const post_text = req.body.post_text;
+    const post_video = req.body.post_video ? req.body.post_video : null;
+
+    console.log("req.file : Image envoyée");
+    console.log(req.file);
 
     const url_image = req.file
       ? `${req.protocol}://${req.get("host")}/images/posts/${req.file.filename}`
@@ -43,7 +51,7 @@ exports.createPost = (req, res) => {
 
     dbConnect.query(
       sqlReq.createPost,
-      [post_text, url_image, id_user],
+      [post_text, url_image, id_user, post_video],
       (err, result) => {
         if (err) {
           console.log("Erreur dans les données" + err);
@@ -57,16 +65,20 @@ exports.createPost = (req, res) => {
             data: {
               post_text,
               post_url_image: url_image,
-              //post_id_user: id_user,
+              post_video: post_video,
               id_post: result.insertId,
             },
           });
         }
       }
     );
-  } else if (!req.body.post_text) {
+  } else if (!req.body.post_text && !req.body.post_video && !req.file) {
     return res.status(400).json({
-      message: "Votre post ne peut être créé sans texte associé",
+      message: "Votre post ne peut être créé sans élément ou texte associé",
+    });
+  } else {
+    return res.status(500).json({
+      message: "Erreur de cookie",
     });
   }
 };

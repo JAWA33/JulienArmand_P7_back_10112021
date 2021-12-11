@@ -45,7 +45,7 @@ const createPost =
   "INSERT INTO gc_posts (post_text, post_url_image, post_id_user, post_video) VALUES (?,?,?,?)";
 
 const updatePost =
-  "UPDATE gc_posts SET post_text =? ,post_url_image =? WHERE post_id_user=? AND id_post=?";
+  "UPDATE gc_posts SET post_text =?, post_url_image =?, post_video =? WHERE post_id_user=? AND id_post=?";
 
 const deletePost = "DELETE FROM gc_posts WHERE post_id_user=? AND id_post=?";
 
@@ -60,7 +60,8 @@ const dislike = "DELETE FROM gc_likes WHERE like_id_post=? AND like_id_user=?";
 const comment =
   "INSERT INTO gc_comments (comment_text,comment_id_post, comment_id_user) VALUES (?,?,?)";
 
-const getComments = "SELECT * FROM gc_comments WHERE comment_id_post=?";
+const getComments =
+  "SELECT id_comment, comment_text, comment_create,comment_id_post,comment_id_user,user_url_image FROM gc_comments INNER JOIN gc_users ON id_user = comment_id_user ORDER BY comment_create DESC"; //WHERE comment_id_post=?"
 //! Voir pour ajouter l'url image de comment_id_user
 
 const updateComment =

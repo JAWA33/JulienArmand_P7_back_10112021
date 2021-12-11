@@ -23,7 +23,7 @@ router.get("/like/:idpost", authorize, postCtrl.like); //C (l'user like un post)
 router.delete("/like/:idpost", authorize, postCtrl.dislike); //D (l'user dislike un post)
 
 router.post("/create/comment/:idpost", authorize, regExp, postCtrl.comment); //C (faire un commentaire sur un post)
-router.get("/all/comment/:idpost", authorize, postCtrl.getComments); //R (lire tous les commentaires d'un post)
+router.get("/all/comment", authorize, postCtrl.getComments); //R (lire tous les commentaires d'un post)
 router.put(
   "/update/comment/:idcomment",
   authorize,

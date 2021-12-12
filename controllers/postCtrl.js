@@ -2,6 +2,7 @@ const dbConnect = require("../database/dbConnect.js");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const sqlReq = require("../utils/sqlRequest.js");
+const fs = require("fs");
 dotenv.config({ path: "../.env" });
 
 //! #################### POSTS ###################### //
@@ -95,8 +96,10 @@ exports.updatePost = (req, res) => {
   if (
     req.cookies.jwt &&
     req.params.idpost &&
-    req.body.post_text &&
-    req.body.post_video
+    (req.body.post_video ||
+      req.body.post_url_image ||
+      req.body.post_text ||
+      (req.file && req.body.url_image_toDelete))
   ) {
     const { jwt: token } = req.cookies;
     const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
@@ -116,6 +119,14 @@ exports.updatePost = (req, res) => {
       url_image = req.body.post_url_image;
     }
     if (req.file) {
+      const fileToDelete = req.body.url_image_toDelete;
+
+      const filename = fileToDelete.split("/posts/")[1].split('"')[0];
+
+      fs.unlink(`images/posts/${filename}`, () => {
+        console.log("image effacée");
+      });
+
       url_image = `${req.protocol}://${req.get("host")}/images/posts/${
         req.file.filename
       }`;
@@ -142,9 +153,9 @@ exports.updatePost = (req, res) => {
         }
       }
     );
-  } else if (!req.body.post_text) {
+  } else {
     return res.status(400).json({
-      message: "Votre post ne peut être mis à jour sans élément modifié",
+      message: "Erreur dans les données envoyées",
     });
   }
 };
@@ -158,18 +169,53 @@ exports.deletePost = (req, res) => {
     const { id_user: id_user } = decodedToken;
     const id_post = req.params.idpost;
 
-    dbConnect.query(sqlReq.deletePost, [id_user, id_post], (err) => {
+    //! Recherche si image :
+    dbConnect.query(sqlReq.imagePost, id_post, (err, result) => {
       if (err) {
-        console.log("Erreur dans les données" + err);
-        res.status(500).json({
-          message: "Echec de la suppression : Merci de recommencer",
-        });
+        console.log("Erreur de la récupération d'image" + err);
       } else {
-        console.log("Post supprimé");
-        res.status(201).json({
-          data: { id_post: id_post },
-        });
+        const urlFile = JSON.stringify(result);
+
+        if (urlFile.split('image":')[1].split("}")[0] === "null") {
+          //! Suppression du post sans image
+          dbConnect.query(sqlReq.deletePost, [id_user, id_post], (err) => {
+            if (err) {
+              console.log("Erreur dans les données" + err);
+              res.status(500).json({
+                message: "Echec de la suppression : Merci de recommencer",
+              });
+            } else {
+              console.log("Post supprimé");
+              res.status(201).json({
+                data: { id_post: id_post },
+              });
+            }
+          });
+        } else {
+          //! Suppression du post avec image
+          const filename = urlFile.split("/posts/")[1].split('"')[0];
+
+          fs.unlink(`images/posts/${filename}`, () => {
+            dbConnect.query(sqlReq.deletePost, [id_user, id_post], (err) => {
+              if (err) {
+                console.log("Erreur dans les données" + err);
+                res.status(500).json({
+                  message: "Echec de la suppression : Merci de recommencer",
+                });
+              } else {
+                console.log("Post supprimé");
+                res.status(201).json({
+                  data: { id_post: id_post },
+                });
+              }
+            });
+          });
+        }
       }
+    });
+  } else {
+    res.status(201).json({
+      message: "impossible de supprimer",
     });
   }
 };

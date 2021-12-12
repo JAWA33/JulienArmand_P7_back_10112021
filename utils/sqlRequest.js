@@ -49,6 +49,8 @@ const updatePost =
 
 const deletePost = "DELETE FROM gc_posts WHERE post_id_user=? AND id_post=?";
 
+const imagePost = "SELECT post_url_image FROM gc_posts WHERE id_post=?";
+
 //? ################# Requête pour like : ########################
 
 const like = "INSERT INTO gc_likes (like_id_post, like_id_user) VALUES (?,?)";
@@ -90,4 +92,5 @@ module.exports = {
   getComments: getComments,
   updateComment: updateComment,
   deleteComment: deleteComment,
+  imagePost: imagePost,
 };

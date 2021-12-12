@@ -13,12 +13,9 @@ const storage = multer.diskStorage({
     callback(null, "images/posts");
   },
   filename: (req, file, callback) => {
-    const newname = file.originalname.split(".").join("_"); //!JSON.parse(req.body.sauce);  A remplacer par champ spécifique
-    console.log(newname /*.name*/);
+    const user = file.originalname.split("-").join("_"); //! Nom du fichier
+    const name = "Post_" + user;
 
-    const name = newname /*.name*/
-      .split(" ")
-      .join("_");
     const extension = MIME_TYPES[file.mimetype];
     callback(null, name + Date.now() + "." + extension);
   },

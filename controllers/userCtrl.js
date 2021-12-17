@@ -20,6 +20,8 @@ dotenv.config({ path: "../.env" });
 */
 
 exports.signup = (req, res, next) => {
+  console.log("Reception du formulaire");
+  console.log(req.body);
   // Vérification correspondance mot de passe et confirmation
   if (req.body.password !== req.body.controlPass) {
     res.status(201).json({
@@ -121,7 +123,10 @@ exports.login = (req, res) => {
                 }
               );
               // Envoi du token dans un cookie
-              res.cookie("jwt", token);
+              res.cookie("jwt", token, {
+                maxAge: 1000 * 60 * 60 * 24,
+                httpOnly: true,
+              });
               console.log("Token envoyé");
 
               // Modification timestamp de dernière connexion
@@ -212,30 +217,35 @@ exports.getOneUser = (req, res) => {
 */
 
 exports.updateUser = (req, res) => {
+  console.log("REQUETE UPDATE USER ###############");
+  console.log(req.body);
+  console.log(req.file);
   if (req.cookies.jwt) {
     const { jwt: token } = req.cookies;
     const decodedToken = jwt.verify(token, process.env.GC_TOKEN_SECRET);
     const { id_user: id_user } = decodedToken;
 
     // console.log(id_user);
-    // console.log(req.body.firstname);
-    // console.log(req.body.lastname);
 
-    if (id_user == req.params.id && req.body.firstname && req.body.id_job) {
-      const lastname = req.body.lastname;
-      const firstname = req.body.firstname; // not Null
-      const phone = req.body.phone;
-      const age = req.body.age;
-      const bio = req.body.bio;
-      const skill = req.body.skill;
-      const hobbie = req.body.hobbie;
+    if (
+      id_user == req.params.id &&
+      req.body.user_firstname &&
+      req.body.id_job
+    ) {
+      const lastname = req.body.user_lastname;
+      const firstname = req.body.user_firstname; // not Null
+      const phone = req.body.user_phone;
+      const age = req.body.user_age;
+      const bio = req.body.user_bio;
+      const skill = req.body.user_skill;
+      const hobbie = req.body.user_hobbie;
       const id_job = req.body.id_job; //not Null
 
       const url_image = req.file
         ? `${req.protocol}://${req.get("host")}/images/profils/${
             req.file.filename
           }`
-        : req.body.url_image;
+        : req.body.user_url_image;
 
       //! A vérifier + Ajouter suppresion de l'ancienne image de profil !!!!!!!!!!!!!!
 
@@ -257,17 +267,17 @@ exports.updateUser = (req, res) => {
           if (err) {
             console.log("Erreur " + err);
           } else {
+            //res.clearCookie("jwt");
             res.status(201).json(result);
           }
         }
       );
-    } else if (!req.body.firstname || !req.body.id_job) {
+    } else if (!req.body.user_firstname || !req.body.id_job) {
       res.status(400).json({
         message:
           "Vous devez au minimum remplir un prénom et votre poste pour mettre à jour votre profil",
       });
     } else if (id_user !== req.params.id) {
-      res.clearCookie("jwt");
       res.status(400).json({
         message:
           "Un problème est survenu, merci de vous reconnecter. Vous serez redirigé vers la page d'acceuil dans 5 secondes",
@@ -298,7 +308,6 @@ exports.deleteUser = (req, res) => {
               "Suppression impossible : Contacter l'administrateur du site",
           });
         } else {
-          res.clearCookie("jwt");
           console.log("Suppression du compte effectué");
           res.status(200).json({ message: "Votre compte a été supprimé" });
         }

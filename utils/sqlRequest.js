@@ -1,6 +1,7 @@
 //? ################# Requête pous jobs : #######################
 
-const allJobs = "SELECT * FROM gc_jobs";
+const allJobs =
+  "SELECT id_job, job_name, job_id_service, job_position, service_name FROM gc_jobs INNER JOIN gc_services ON id_service = job_id_service";
 
 //? ################# Requête pour user : #######################
 const signup =
@@ -15,7 +16,7 @@ const allUser =
   "SELECT id_user, user_firstname,user_lastname,user_email,user_phone,user_age,user_bio,user_skill,user_hobbie, user_url_image,job_name,service_name,job_position FROM gc_users INNER JOIN gc_jobs ON user_id_job=id_job INNER JOIN gc_services ON job_id_service=id_service";
 
 const oneUser =
-  "SELECT id_user, user_firstname,user_lastname,user_email,user_phone,user_age,user_bio,user_skill,user_hobbie, user_url_image,user_status,job_name,service_name,job_position FROM gc_users INNER JOIN gc_jobs ON user_id_job=id_job INNER JOIN gc_services ON job_id_service=id_service WHERE id_user=?";
+  "SELECT id_user, user_firstname,user_lastname,user_email,user_phone,user_age,user_bio,user_skill,user_hobbie, user_url_image,user_status,job_name,service_name,job_position, id_job FROM gc_users INNER JOIN gc_jobs ON user_id_job=id_job INNER JOIN gc_services ON job_id_service=id_service WHERE id_user=?";
 
 const checkUser = "SELECT id_user FROM gc_users WHERE id_user=?";
 

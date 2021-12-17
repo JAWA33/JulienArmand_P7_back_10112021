@@ -10,8 +10,9 @@ const jobRoute = require("./routes/jobRoute.js");
 //const icomRoute = require("./routes/icomRoute.js");
 
 const dotenv = require("dotenv");
-const authorize = require("./middlewares/authorize.js");
+//const authorize = require("./middlewares/authorize.js");
 const checked = require("./middlewares/checked.js");
+const authorize = require("./middlewares/authorize.js");
 //const { checkUser } = require("./utils/sqlRequest.js");
 
 dotenv.config({ path: "../../../../.env" });
@@ -48,7 +49,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 //* Verification de connexion :
-app.get("*", checked);
+//app.get("*", checked); A VOIR SI CHECK UTILE
 app.get("/jwtid", authorize, (req, res) => {
   console.log(res.locals.user);
   res.status(200).json(res.locals.user);

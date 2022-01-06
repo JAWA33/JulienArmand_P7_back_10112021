@@ -49,7 +49,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 //* Verification de connexion :
-//app.get("*", checked); A VOIR SI CHECK UTILE
+app.get("*", checked); //A VOIR SI CHECK UTILE
 app.get("/jwtid", authorize, (req, res) => {
   console.log(res.locals.user);
   res.status(200).json(res.locals.user);

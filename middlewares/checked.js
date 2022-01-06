@@ -17,6 +17,7 @@ const checked = (req, res, next) => {
     next();
   } else {
     console.log("pas de cookies");
+
     res.locals.user = null;
     next();
   }

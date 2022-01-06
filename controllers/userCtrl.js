@@ -235,7 +235,13 @@ exports.updateUser = (req, res) => {
       const lastname = req.body.user_lastname;
       const firstname = req.body.user_firstname; // not Null
       const phone = req.body.user_phone;
-      const age = req.body.user_age;
+      let age;
+      if (req.body.user_age === "null") {
+        age = null;
+      } else {
+        age = req.body.user_age;
+      }
+
       const bio = req.body.user_bio;
       const skill = req.body.user_skill;
       const hobbie = req.body.user_hobbie;
@@ -295,6 +301,7 @@ exports.deleteUser = (req, res) => {
     const { id_user: id_user } = decodedToken;
 
     if (id_user != req.params.id) {
+      console.log("####################### Mauvais iduser");
       res.clearCookie("jwt");
       res.status(400).json({
         message:
@@ -309,9 +316,12 @@ exports.deleteUser = (req, res) => {
           });
         } else {
           console.log("Suppression du compte effectué");
+          res.clearCookie("jwt");
           res.status(200).json({ message: "Votre compte a été supprimé" });
         }
       });
+    } else {
+      res.clearCookie("jwt");
     }
   }
 };

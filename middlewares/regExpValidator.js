@@ -114,7 +114,7 @@ const regExpValidator = (req, res, next) => {
   regex_email = new RegExp("^[A-Za-z--]+@groupomania+[.]{1}[a-z]{2,3}$");
 
   //? Regex de type "nom" : 3 lettres mini, pas de chiffre ni caractères spéciaux sauf "-" ############## //
-  regex_name = new RegExp("^[A-Za-z-]{3,}$");
+  regex_name = new RegExp("^[A-Za-z-éèàïî]{3,}$");
 
   //? Regex de type numérique : uniquement des nombres positifs ############################# //
   regex_id = new RegExp("^[0-9]{1,}$");

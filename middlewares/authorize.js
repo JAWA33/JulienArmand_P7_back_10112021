@@ -19,13 +19,14 @@ const authorize = (req, res, next) => {
 
       dbConnect.query(sqlReq.checkUser, id_user, (err) => {
         if (err) {
-          //res.clearCookie("jwt");
+          res.clearCookie("jwt");
           res.status(403).json({ message: "403: unauthorized request" });
         } else {
           next();
         }
       });
     } else {
+      res.clearCookie("jwt");
       res
         .status(403)
         .json({ message: "403: unauthorized access (Cookie not found)" });

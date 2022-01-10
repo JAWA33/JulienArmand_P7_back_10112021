@@ -45,6 +45,8 @@ Vous devrez également créer les éléments suivants :
 
 - gc_users avec les colonnes : id_user, user_firstname, user_lastname, user_email, user_password, user_phone, user_age, user_bio, user_skill, user_hobbie, user_url_image, user_create, user_id_job, user_status, user_lastconnect
 
+NOTA : Vous pouvez utilisier le fichier DBGroupomania.sql pour générer automatiquement la base de données. Disponible ici : backend/database/structureDB/DBgroupomania.sql (A noter que cette base de données comporte 7 tables et non 6, la table "gc_instantcom" n'est pas utilisée dans le projet actuel mais sera utile dans les futures versions du projet)
+
 3. un fichier .env avec les informations suivantes :
 
 - Les informations de connexion à la base de données MySQL :
